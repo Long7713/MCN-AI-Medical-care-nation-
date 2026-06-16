@@ -5,22 +5,29 @@ services:
   postgres:
     image: postgres:15
     ports:
-      - '5432:5432'
+      - '5433:5432'
     environment:
       POSTGRES_USER: admin
-      POSTGRES_PASSWORD: secretpassword
-      POSTGRES_DB: my_db
+      POSTGRES_PASSWORD: mcn12345
+      POSTGRES_DB: mcn_db
     volumes:
-      # Dấu ../ nghĩa là đi lùi ra ngoài thư mục Systemhospital, tìm đúng folder Docker_Data
-      # và tạo một thư mục con tên là 'postgres_data' để lưu dữ liệu database vào đó.
       - ../Docker_Data/postgres_data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    ports:
+      - '5050:80'
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@mcn.com
+      PGADMIN_DEFAULT_PASSWORD: mcn12345
+    depends_on:
+      - postgres
 
   # Căn nhà số 2: Bộ nhớ đệm (làm mượt hệ thống)
   redis:
     image: redis:7-alpine
     ports:
       - '6379:6379'
-    # Redis là bộ nhớ đệm tạm thời nên thường không cần lưu volume ra ngoài máy thật.
 
   # Căn nhà số 3: Hệ thống xếp hàng tin nhắn
   rabbitmq:
