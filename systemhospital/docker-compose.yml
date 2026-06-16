@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  # Căn nhà số 1: Lưu trữ dữ liệu
+  postgres:
+    image: postgres:15
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secretpassword
+      POSTGRES_DB: my_db
+
+  # Căn nhà số 2: Bộ nhớ đệm (làm mượt hệ thống)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - '6379:6379'
+
+  # Căn nhà số 3: Hệ thống xếp hàng tin nhắn
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - '5672:5672'
+      - '15672:15672'
