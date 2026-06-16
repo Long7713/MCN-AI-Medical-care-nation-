@@ -12,4 +12,4 @@ print("--- HỆ THỐNG: Đang xuất mô hình về thư mục dự án (ổ D)
 model.save_pretrained('../phobert_v2')
 tokenizer.save_pretrained('../phobert_v2')
 
-print("--- HỆ THỐNG: ĐÃ ĐƯA AI VỀ THƯ MỤC DỰ ÁN THÀNH CÔNG! ---")/
+print("--- HỆ THỐNG: ĐÃ ĐƯA AI VỀ THƯ MỤC DỰ ÁN THÀNH CÔNG! ---")
