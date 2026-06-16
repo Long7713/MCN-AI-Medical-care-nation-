@@ -1,0 +1,71 @@
+# ===== Java / Spring Boot / Maven =====
+target/
+*.class
+*.jar
+*.war
+*.ear
+hs_err_pid*
+.mvn/wrapper/maven-wrapper.jar
+
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.venv/
+venv/
+ENV/
+*.egg-info/
+dist/
+.pytest_cache/
+.mypy_cache/
+
+# ===== Docker =====
+Docker_Data/
+
+# ===== Environment / Secrets =====
+Mobile_app/.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+application-local.properties
+application-secret.properties
+
+# ===== IDE =====
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+.vscode/
+*.code-workspace
+.classpath
+.project
+.settings/
+
+# ===== OS =====
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===== Logs =====
+*.log
+logs/
+spring.log
+
+# ===== AI Model files =====
+*.bin
+*.onnx
+*.pt
+*.pth
+*.h5
+*.pkl
+*.safetensors
+models/
+phobert_v2/
+
+# ===== Node.js =====
+node_modules/
+.expo/

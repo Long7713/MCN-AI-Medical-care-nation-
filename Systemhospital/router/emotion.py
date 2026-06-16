@@ -1,3 +1,4 @@
+import os
 from fastapi import APIRouter
 from pydantic import BaseModel
 from transformers import AutoModel, AutoTokenizer
@@ -8,8 +9,7 @@ router = APIRouter(
     tags=["AI Emotion Recognition"]
 )
 
-# Load mô hình offline từ thư mục cha (../phobert_v2) để tránh lỗi UNEXPECTED/MISSING
-MODEL_PATH = "../phobert_v2"
+MODEL_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "phobert_v2"))
 tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
 model = AutoModel.from_pretrained(MODEL_PATH)
 

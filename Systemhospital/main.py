@@ -1,6 +1,4 @@
 from fastapi import FastAPI
-# Nhập (import) các router từ thư mục routers vào
-from router import Phobert, emotion, crowd
 
 app = FastAPI(
     title="System Hospital AI API",
@@ -16,7 +14,15 @@ def read_root():
 def health_check():
     return {"status": "ok"}
 
-# Khai báo cho FastAPI biết các đường dẫn mới
-app.include_router(Phobert.router)
-app.include_router(emotion.router)
-app.include_router(crowd.router)  # <-- THÊM DÒNG NÀY để kích hoạt chức năng đám đông!
+# Load AI routers — chỉ hoạt động khi đã cài transformers + torch + model files
+try:
+    from router import Phobert, emotion, crowd
+    app.include_router(Phobert.router)
+    app.include_router(emotion.router)
+    app.include_router(crowd.router)
+    print("✅ AI routers loaded successfully")
+except ModuleNotFoundError as e:
+    print(f"⚠️  AI routers skipped (missing dependency: {e})")
+    print("   Chạy: pip install transformers torch")
+except Exception as e:
+    print(f"⚠️  AI routers skipped ({e})")
