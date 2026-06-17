@@ -1,0 +1,19 @@
+{
+  "expo": {
+    "name": "Medical Health AI",
+    "slug": "mh-ai-mobile",
+    "version": "1.0.0",
+    "scheme": "mh-ai",
+    "web": {
+      "bundler": "metro"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#ffffff"
+      }
+    }
+  }
+}
