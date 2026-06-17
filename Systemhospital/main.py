@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
 app = FastAPI(
-    title="System Hospital AI API",
+    title="MCN AI(Medical Care Nation)",
     description="Hệ thống API hỗ trợ AI nhận diện cảm xúc và đám đông bệnh viện",
     version="1.0.0"
 )
