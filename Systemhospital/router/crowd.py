@@ -31,4 +31,4 @@ def predict_crowd(req: CrowdRequest):
 @router.get("/heatmap")
 def get_heatmap():
     departments = ["NOI_KHOA","NOI_TIEU_HOA","TIM_MACH","XUONG_KHOP","TAI_MUI_HONG"]
-    return [{"departmentId": d, **predict_crowd(CrowdRequest(departmentId=d)).items()} for d in departments]
+    return [{"departmentId": d, **predict_crowd(CrowdRequest(departmentId=d))} for d in departments]
