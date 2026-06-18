@@ -72,3 +72,5 @@ node_modules/
 #===== Docx or note=====
 *.docx
 DockerDesktopWSL/
+#=== Environment,host==
+*.env
