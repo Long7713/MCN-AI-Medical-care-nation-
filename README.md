@@ -79,13 +79,13 @@ MCN-AI-Medical-care-nation-/
 
 ## Yêu cầu cài đặt
 
-| Công cụ | Phiên bản | Kiểm tra |
-|---|---|---|
-| Docker | 20+ | `docker --version` |
-| JDK | 21 | `java -version` |
-| Python | 3.10+ | `python3 --version` |
-| Node.js | 18+ | `node --version` |
-| npm | 9+ | `npm --version` |
+| Công cụ | Phiên bản | Kiểm tra            |
+| ------- | --------- | ------------------- |
+| Docker  | 20+       | `docker --version`  |
+| JDK     | 21        | `java -version`     |
+| Python  | 3.10+     | `python3 --version` |
+| Node.js | 18+       | `node --version`    |
+| npm     | 9+        | `npm --version`     |
 
 ### Cài JDK 21 (nếu chưa có)
 
@@ -113,6 +113,7 @@ python download-AI.py
 ```
 
 **Kết quả download model:**
+
 ```
 --- HỆ THỐNG: Đang đọc mô hình từ cache... ---
 --- HỆ THỐNG: Đang xuất mô hình về thư mục dự án... ---
@@ -129,11 +130,16 @@ npx expo install react-native-safe-area-context react-native-screens \
 ```
 
 Lấy IP WiFi máy tính:
+
 ```bash
 hostname -I | awk '{print $1}'
 ```
 
+Window
+Ipconfig
+
 Mở file `Mobile_app/.env` và điền IP:
+
 ```env
 EXPO_PUBLIC_API_URL=http://<IP_WIFI_MAY_TINH>:8080
 EXPO_PUBLIC_AI_URL=http://<IP_WIFI_MAY_TINH>:8000
@@ -155,6 +161,7 @@ docker compose up -d
 ```
 
 **Kết quả mong đợi:**
+
 ```
 ✔ Container systemhospital-postgres-1   Started
 ✔ Container systemhospital-redis-1      Started
@@ -171,6 +178,7 @@ uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 **Kết quả mong đợi:**
+
 ```
 Loading weights: 100%|████████| 199/199
 ✅ AI routers loaded successfully
@@ -182,12 +190,13 @@ INFO:     Application startup complete.
 
 ```bash
 cd backend
-export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
+export JAVA_HOME=D:\Enviroment\jdks21\bin
 export PATH=$JAVA_HOME/bin:$PATH
 ./mvnw spring-boot:run
 ```
 
 **Kết quả mong đợi (chờ ~30-60 giây):**
+
 ```
 HikariPool-1 - Start completed.
 Tomcat started on port 8080 (http) with context path '/'
@@ -202,6 +211,7 @@ npx expo start --lan
 ```
 
 **Kết quả mong đợi:**
+
 ```
 env: load .env
 env: export EXPO_PUBLIC_API_URL EXPO_PUBLIC_AI_URL
@@ -211,6 +221,7 @@ Starting Metro Bundler
 ```
 
 **Kết nối điện thoại:**
+
 1. Tải **Expo Go** từ Play Store / App Store
 2. Mở Expo Go → nhấn **"Scan QR code"**
 3. Scan QR hiện trong terminal
@@ -246,6 +257,7 @@ curl -s -X POST http://localhost:8000/emotion/predict \
 ```
 
 **Kết quả mong đợi:**
+
 ```json
 // actuator/health
 {"status":"UP","components":{"db":{"status":"UP"},"redis":{"status":"UP"},"rabbit":{"status":"UP"}}}
@@ -277,27 +289,29 @@ cd Systemhospital && docker compose down
 
 ## THÔNG TIN KẾT NỐI
 
-| Service | URL | Thông tin |
-|---|---|---|
-| Spring Boot API | http://localhost:8080 | — |
-| FastAPI AI | http://localhost:8000 | — |
-| FastAPI Docs | http://localhost:8000/docs | Swagger UI tự động |
-| pgAdmin | http://localhost:5050 | admin@mcn.com / mcn12345 |
-| RabbitMQ UI | http://localhost:15672 | guest / guest |
-| PostgreSQL | localhost:5433 | admin / mcn12345 / mcn_db |
-| Redis | localhost:6379 | — |
-| RabbitMQ | localhost:5672 | — |
+| Service         | URL                        | Thông tin                 |
+| --------------- | -------------------------- | ------------------------- |
+| Spring Boot API | http://localhost:8080      | —                         |
+| FastAPI AI      | http://localhost:8000      | —                         |
+| FastAPI Docs    | http://localhost:8000/docs | Swagger UI tự động        |
+| pgAdmin         | http://localhost:5050      | admin@mcn.com / mcn12345  |
+| RabbitMQ UI     | http://localhost:15672     | guest / guest             |
+| PostgreSQL      | localhost:5433             | admin / mcn12345 / mcn_db |
+| Redis           | localhost:6379             | —                         |
+| RabbitMQ        | localhost:5672             | —                         |
 
 ---
 
 ## XEM DATABASE
 
 **pgAdmin:**
+
 1. Mở http://localhost:5050
 2. Đăng nhập: `admin@mcn.com` / `mcn12345`
 3. Add Server: Host = `postgres`, Port = `5432`, DB = `mcn_db`, User = `admin`, Pass = `mcn12345`
 
 **Terminal:**
+
 ```bash
 docker exec -it systemhospital-postgres-1 psql -U admin -d mcn_db
 \dt    # danh sách bảng
@@ -309,17 +323,17 @@ docker exec -it systemhospital-postgres-1 psql -U admin -d mcn_db
 
 ## XỬ LÝ LỖI THƯỜNG GẶP
 
-| Lỗi | Nguyên nhân | Cách fix |
-|---|---|---|
-| `db: DOWN` trong health | Docker chưa chạy | `docker compose up -d` |
-| `Address already in use :8000` | Process cũ chưa tắt | `kill $(lsof -ti:8000)` |
-| `Address already in use :8080` | Spring Boot cũ chưa tắt | `kill $(lsof -ti:8080)` |
-| `⚠️ AI routers skipped` | Thiếu model hoặc torch | Chạy lại Setup Python |
-| `command not found: uvicorn` | Chưa activate venv | `source .venv/bin/activate` |
-| `This project requires newer Expo Go` | SDK mismatch | Project dùng SDK 54 — cập nhật Expo Go |
-| Mobile không kết nối | Sai IP hoặc khác mạng WiFi | Cập nhật `.env`, điện thoại cùng WiFi |
-| `403` khi gọi API | Spring Security | Đã fix trong `SecurityConfig.java` |
-| `ModuleNotFoundError: transformers` | Chưa cài pip | `pip install -r requirements.txt` |
+| Lỗi                                   | Nguyên nhân                | Cách fix                               |
+| ------------------------------------- | -------------------------- | -------------------------------------- |
+| `db: DOWN` trong health               | Docker chưa chạy           | `docker compose up -d`                 |
+| `Address already in use :8000`        | Process cũ chưa tắt        | `kill $(lsof -ti:8000)`                |
+| `Address already in use :8080`        | Spring Boot cũ chưa tắt    | `kill $(lsof -ti:8080)`                |
+| `⚠️ AI routers skipped`               | Thiếu model hoặc torch     | Chạy lại Setup Python                  |
+| `command not found: uvicorn`          | Chưa activate venv         | `source .venv/bin/activate`            |
+| `This project requires newer Expo Go` | SDK mismatch               | Project dùng SDK 54 — cập nhật Expo Go |
+| Mobile không kết nối                  | Sai IP hoặc khác mạng WiFi | Cập nhật `.env`, điện thoại cùng WiFi  |
+| `403` khi gọi API                     | Spring Security            | Đã fix trong `SecurityConfig.java`     |
+| `ModuleNotFoundError: transformers`   | Chưa cài pip               | `pip install -r requirements.txt`      |
 
 ---
 
@@ -327,16 +341,16 @@ docker exec -it systemhospital-postgres-1 psql -U admin -d mcn_db
 
 Chi tiết đầy đủ trong `API_CONTRACT.md`.
 
-| Method | Endpoint | Service | Auth | Trạng thái |
-|---|---|---|---|---|
-| POST | `/auth/register` | Spring Boot | Không | Stub `{}` |
-| POST | `/auth/login` | Spring Boot | Không | Stub `{}` |
-| POST | `/voice/transcribe` | Spring Boot | Bearer | Stub `{}` |
-| POST | `/booking/suggest-dept` | Spring Boot | Bearer | Stub `{}` |
-| POST | `/appointments` | Spring Boot | Bearer | Stub `{}` |
-| GET | `/actuator/health` | Spring Boot | Không | ✅ Live |
-| POST | `/ai/suggest-department` | FastAPI | Không | ✅ AI thật |
-| POST | `/emotion/predict` | FastAPI | Không | ✅ AI thật |
-| GET | `/health` | FastAPI | Không | ✅ Live |
+| Method | Endpoint                 | Service     | Auth   | Trạng thái |
+| ------ | ------------------------ | ----------- | ------ | ---------- |
+| POST   | `/auth/register`         | Spring Boot | Không  | Stub `{}`  |
+| POST   | `/auth/login`            | Spring Boot | Không  | Stub `{}`  |
+| POST   | `/voice/transcribe`      | Spring Boot | Bearer | Stub `{}`  |
+| POST   | `/booking/suggest-dept`  | Spring Boot | Bearer | Stub `{}`  |
+| POST   | `/appointments`          | Spring Boot | Bearer | Stub `{}`  |
+| GET    | `/actuator/health`       | Spring Boot | Không  | ✅ Live    |
+| POST   | `/ai/suggest-department` | FastAPI     | Không  | ✅ AI thật |
+| POST   | `/emotion/predict`       | FastAPI     | Không  | ✅ AI thật |
+| GET    | `/health`                | FastAPI     | Không  | ✅ Live    |
 
 > Các Spring Boot endpoint đang là **stub** (trả `{}`). Logic thật implement ở sprint tiếp theo.
