@@ -4,10 +4,12 @@ import {
   StyleSheet, ActivityIndicator, Alert, ScrollView,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { register } from "../../services/api";
+import { register, login } from "../../services/api";
+import { useAuthStore } from "../../stores/authStore";
 
 export default function RegisterScreen() {
   const router = useRouter();
+  const { setAuth } = useAuthStore();
   const [form, setForm] = useState({
     fullName: "", phone: "", email: "",
     password: "", dateOfBirth: "", gender: "MALE",
@@ -24,11 +26,12 @@ export default function RegisterScreen() {
     setLoading(true);
     try {
       await register(form);
-      Alert.alert("Thành công", "Đăng ký thành công! Vui lòng đăng nhập.", [
-        { text: "OK", onPress: () => router.replace("/auth/login") },
-      ]);
-    } catch {
-      Alert.alert("Lỗi", "Đăng ký thất bại, vui lòng thử lại");
+      const loginResult = await login(form.phone, form.password);
+      await setAuth(loginResult.data.accessToken, loginResult.data.user);
+      router.replace("/(main)/home");
+    } catch (err: any) {
+      const msg = err.response?.data?.message || "Đăng ký thất bại, vui lòng thử lại";
+      Alert.alert("Lỗi", msg);
     } finally {
       setLoading(false);
     }

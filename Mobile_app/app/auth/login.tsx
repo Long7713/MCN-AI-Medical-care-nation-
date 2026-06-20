@@ -5,9 +5,11 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { checkServerHealth, login } from "../../services/api";
+import { useAuthStore } from "../../stores/authStore";
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { setAuth } = useAuthStore();
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -24,10 +26,12 @@ export default function LoginScreen() {
     }
     setLoading(true);
     try {
-      await login(phone, password);
-      Alert.alert("Thành công", "Đăng nhập thành công!");
-    } catch {
-      Alert.alert("Lỗi", "Số điện thoại hoặc mật khẩu không đúng");
+      const result = await login(phone, password);
+      await setAuth(result.data.accessToken, result.data.user);
+      router.replace("/(main)/home");
+    } catch (err: any) {
+      const msg = err.response?.data?.message || "Số điện thoại hoặc mật khẩu không đúng";
+      Alert.alert("Lỗi", msg);
     } finally {
       setLoading(false);
     }
