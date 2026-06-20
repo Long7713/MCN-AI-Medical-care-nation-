@@ -74,8 +74,8 @@ export default function LoginScreen() {
 
         {/* Brand */}
         <Text style={styles.brandIcon}>⚕️</Text>
-        <Text style={styles.brandName}>MH AI</Text>
-        <Text style={styles.brandSubtitle}>Medical Health AI</Text>
+        <Text style={styles.brandName}>MCN-AI</Text>
+        <Text style={styles.brandSubtitle}>Medical Care Nation</Text>
         <Text style={styles.brandTagline}>
           Chăm sóc sức khỏe thông minh cùng trí tuệ nhân tạo
         </Text>

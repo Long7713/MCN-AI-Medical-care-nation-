@@ -132,7 +132,7 @@ export default function HomeScreen() {
         <View style={styles.infoCard}>
           <Text style={styles.infoCardTitle}>⚕️ Lưu ý sức khỏe</Text>
           <Text style={styles.infoCardText}>
-            Hệ thống AI y tế đang phân tích các triệu chứng và đề xuất
+            MCN-AI đang phân tích các triệu chứng và đề xuất
             chuyên khoa phù hợp nhất cho bạn.
           </Text>
         </View>

@@ -70,7 +70,7 @@ export default function RegisterScreen() {
           <Text style={styles.backBtnText}>← Quay lại</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Đăng Ký</Text>
-        <Text style={styles.headerSubtitle}>⚕️ MH AI Medical</Text>
+        <Text style={styles.headerSubtitle}>⚕️ MCN-AI</Text>
       </View>
 
       {/* Form */}

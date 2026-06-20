@@ -36,22 +36,54 @@ export const login = async (phone: string, password: string) => {
   return res.data;
 };
 
-export const createAppointment = async (body: object) => {
-  const res = await backendClient.post("/appointments", body);
+export const getDepartments = async () => {
+  const res = await backendClient.get("/departments");
+  return res.data;
+};
+
+export const getDepartmentSlots = async (deptId: number) => {
+  const res = await backendClient.get(`/departments/${deptId}/slots`);
+  return res.data;
+};
+
+export const createAppointment = async (
+  token: string,
+  body: { departmentId: number; slotId: number; note?: string }
+) => {
+  const res = await backendClient.post("/appointments", body, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.data;
+};
+
+export const getMyAppointments = async (token: string) => {
+  const res = await backendClient.get("/appointments/me", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
   return res.data;
 };
 
 // ── Systemhospital AI (FastAPI :8000) ────────────────────────
 
-export const suggestDepartment = async (symptomText: string) => {
+export const suggestDepartment = async (symptomText: string): Promise<{ department: string; confidence: number; all: any[] }> => {
   try {
     if (!AI_URL) throw new Error("EXPO_PUBLIC_AI_URL chưa được cấu hình");
     const res = await aiClient.post("/ai/suggest-department", { text: symptomText });
-    return res.data;
+    const top = res.data?.suggested_departments?.[0];
+    return {
+      department: top?.department ?? "Nội Khoa",
+      confidence: top?.confidence ?? 0,
+      all: res.data?.suggested_departments ?? [],
+    };
   } catch {
     console.warn("⚠️ AI service không khả dụng");
-    return { department: "Nội Khoa", status: "mock" };
+    return { department: "Nội Khoa", confidence: 0, all: [] };
   }
+};
+
+export const transcribeAudio = async (audioBase64: string) => {
+  const res = await backendClient.post("/voice/transcribe", { audioBase64 });
+  return res.data as { transcript: string; status: string };
 };
 
 export const predictEmotion = async (text: string) => {

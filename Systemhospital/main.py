@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 from fastapi import FastAPI
 
 app = FastAPI(
@@ -16,10 +19,11 @@ def health_check():
 
 # Load AI routers — chỉ hoạt động khi đã cài transformers + torch + model files
 try:
-    from router import Phobert, emotion, crowd
+    from router import Phobert, emotion, crowd, voice
     app.include_router(Phobert.router)
     app.include_router(emotion.router)
     app.include_router(crowd.router)
+    app.include_router(voice.router)
     print("✅ AI routers loaded successfully")
 except ModuleNotFoundError as e:
     print(f"⚠️  AI routers skipped (missing dependency: {e})")
