@@ -22,6 +22,7 @@ dist/
 
 # ===== Docker =====
 Docker_Data/
+DockerDesktopWSL
 
 # ===== Environment / Secrets =====
 Mobile_app/.env
@@ -69,8 +70,7 @@ phobert_v2/
 # ===== Node.js =====
 node_modules/
 .expo/
-#===== Docx or note=====
+#== Environment==== 
+.env
+#== Docx====
 *.docx
-DockerDesktopWSL/
-#=== Environment,host==
-*.env
