@@ -69,3 +69,8 @@ phobert_v2/
 # ===== Node.js =====
 node_modules/
 .expo/
+#===== Docx or note=====
+*.docx
+DockerDesktopWSL/
+#=== Environment,host==
+*.env
