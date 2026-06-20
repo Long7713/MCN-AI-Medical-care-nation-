@@ -9,107 +9,57 @@ import {
   Image,
   Alert,
 } from "react-native";
-import { checkServerHealth } from "../../services/api";
-import { useAuthStore } from "../../stores/authStore"; // 1. Thêm import store
-import axios from "axios";
-import { useRouter } from "expo-router"; // 2. Thêm import router
+import { useRouter } from "expo-router";
+import { checkServerHealth, login } from "../../services/api";
+import { useAuthStore } from "../../stores/authStore";
 
 export default function LoginScreen() {
-  const [loading, setLoading] = useState(true);
-  const [serverStatus, setServerStatus] = useState<string>("");
-
-  // 3. Thêm state để lưu thông tin người dùng nhập vào
-  const [username, setUsername] = useState("");
+  const router = useRouter();
+  const { setAuth } = useAuthStore();
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const { setAuth } = useAuthStore(); // Hook lấy hàm lưu token
-  const router = useRouter(); // Hook để chuyển trang
+  const [serverStatus, setServerStatus] = useState<string>("");
 
   useEffect(() => {
-    checkServerHealth().then((data) => {
-      setServerStatus(data.status);
-      setLoading(false);
-    });
+    checkServerHealth().then((data) => setServerStatus(data.status));
   }, []);
 
-  // 4. Viết hàm xử lý logic Đăng nhập
-const handleLogin = async () => {
-  if (!username.trim() || !password.trim()) {
-    Alert.alert("Thông báo", "Vui lòng nhập đầy đủ tài khoản và mật khẩu!");
-    return;
-  }
-
-  setIsSubmitting(true);
-  try {
-    // 1. Gọi API đăng nhập thực tế đến backend (Sử dụng cấu hình axios từ Ngày 1)
-    // Giả định endpoint backend của dự án là /auth/login theo tài liệu tài liệu MH_AI_KH_Ngay2
-    const response = await axios.post("http://10.0.2.2:8080/auth/login", {
-      username: username.trim(),
-      password: password,
-    });
-
-    // 2. Kiểm tra cấu trúc phản hồi từ Backend
-    if (response.data && response.data.token) {
-      const { token, user } = response.data;
-
-      // 3. Lưu thông tin đăng nhập vào Zustand Store (Zustand sẽ tự đẩy vào AsyncStorage)
-      await setAuth(token, user);
-
-      Alert.alert("Thành công", "Đăng nhập ứng dụng thành công!", [
-        {
-          text: "OK",
-          onPress: () => {
-            // 4. Chuyển hướng ngay lập tức sang phân hệ chính (Main Dashboard)
-            router.replace("/(main)/home");
-          },
-        },
-      ]);
-    } else {
-      Alert.alert("Lỗi đăng nhập", "Cấu trúc phản hồi từ server không hợp lệ.");
+  const handleLogin = async () => {
+    if (!phone.trim() || !password.trim()) {
+      Alert.alert("Thông báo", "Vui lòng nhập đầy đủ số điện thoại và mật khẩu!");
+      return;
     }
-  } catch (error: any) {
-    console.error("❌ Login Error:", error);
+    setIsSubmitting(true);
+    try {
+      const result = await login(phone.trim(), password);
+      await setAuth(result.data.accessToken, result.data.user);
+      router.replace("/(main)/home");
+    } catch (error: any) {
+      const msg = error.response?.data?.message || "Số điện thoại hoặc mật khẩu không chính xác!";
+      Alert.alert("Đăng nhập thất bại", msg);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
-    // Xử lý thông báo lỗi thân thiện dựa trên HTTP Status Code
-    const errorMessage =
-      error.response?.data?.message ||
-      "Tài khoản hoặc mật khẩu không chính xác, vui lòng thử lại!";
-
-    Alert.alert("Đăng nhập thất bại", errorMessage);
-  } finally {
-    setIsSubmitting(false);
-  }
-};
   return (
     <View style={styles.container}>
-      {/* Logo */}
       <Image
-        source={{
-          uri: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
-        }}
+        source={{ uri: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png" }}
         style={styles.logo}
       />
-
       <Text style={styles.title}>Chào mừng MH AI</Text>
-
-      <Text
-        style={[
-          styles.status,
-          { color: serverStatus === "UP" ? "#28a745" : "#dc3545" },
-        ]}
-      >
-        {serverStatus === "UP"
-          ? "● Hệ thống sẵn sàng"
-          : "● Hệ thống đang bảo trì"}
+      <Text style={[styles.status, { color: serverStatus === "UP" ? "#28a745" : "#dc3545" }]}>
+        {serverStatus === "UP" ? "● Hệ thống sẵn sàng" : "● Hệ thống đang bảo trì"}
       </Text>
 
-      {/* 5. Gắn value và onChangeText vào các ô Input */}
       <TextInput
         style={styles.input}
-        placeholder="Tên đăng nhập"
-        value={username}
-        onChangeText={setUsername}
+        placeholder="Số điện thoại"
+        keyboardType="phone-pad"
+        value={phone}
+        onChangeText={setPhone}
         autoCapitalize="none"
       />
       <TextInput
@@ -121,7 +71,6 @@ const handleLogin = async () => {
         autoCapitalize="none"
       />
 
-      {/* 6. Cập nhật nút bấm: Hiển thị hiệu ứng loading và gọi hàm handleLogin */}
       <TouchableOpacity
         style={[styles.button, isSubmitting && styles.buttonDisabled]}
         activeOpacity={0.7}
@@ -134,6 +83,7 @@ const handleLogin = async () => {
           <Text style={styles.buttonText}>Đăng nhập</Text>
         )}
       </TouchableOpacity>
+
       <TouchableOpacity
         style={{ marginTop: 20, alignSelf: "center" }}
         onPress={() => router.push("/auth/register")}

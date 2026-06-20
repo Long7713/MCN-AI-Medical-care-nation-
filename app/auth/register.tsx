@@ -7,29 +7,32 @@ import {
   StyleSheet,
   ActivityIndicator,
   Alert,
+  ScrollView,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useAuthStore } from "../../stores/authStore";
+import { register, login } from "../../services/api";
 
 export default function RegisterScreen() {
   const router = useRouter();
   const { setAuth } = useAuthStore();
 
-  // State quản lý dữ liệu đầu vào
   const [fullName, setFullName] = useState("");
-  const [username, setUsername] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Hàm xử lý Logic Đăng ký
   const handleRegister = async () => {
-    // Validate cơ bản tại client
-    if (!fullName.trim() || !username.trim() || !password.trim()) {
-      Alert.alert("Thông báo", "Vui lòng điền đầy đủ thông tin");
+    if (!fullName.trim() || !phone.trim() || !password.trim()) {
+      Alert.alert("Thông báo", "Vui lòng điền đầy đủ họ tên, số điện thoại và mật khẩu");
       return;
     }
-
+    if (!/^0[0-9]{9}$/.test(phone.trim())) {
+      Alert.alert("Lỗi", "Số điện thoại không hợp lệ (VD: 0901234567)");
+      return;
+    }
     if (password !== confirmPassword) {
       Alert.alert("Lỗi", "Mật khẩu nhập lại không trùng khớp");
       return;
@@ -37,71 +40,62 @@ export default function RegisterScreen() {
 
     setIsSubmitting(true);
     try {
-      // Giả lập gọi API register thành công cho Ngày 2
-      // Khi nối API thật, chỗ này sẽ là: const res = await axios.post('/auth/register', {...})
-      const mockResponse = {
-        data: {
-          accessToken: "mock_jwt_token_day_2",
-          user: {
-            userId: 2,
-            fullName: fullName,
-          },
-        },
-      };
-
-      // Tự động đăng nhập luôn sau khi đăng ký thành công
-      await setAuth(mockResponse.data.accessToken, mockResponse.data.user);
-
-      Alert.alert("Thành công", "Đăng ký tài khoản thành công!", [
-        {
-          text: "OK",
-          onPress: () => {
-            // Chuyển thẳng vào khu vực chức năng chính (Màn hình Home)
-            router.replace("/(main)/home");
-          },
-        },
-      ]);
+      await register({
+        fullName: fullName.trim(),
+        phone: phone.trim(),
+        email: email.trim() || undefined,
+        password,
+        gender: "OTHER",
+      });
+      const loginResult = await login(phone.trim(), password);
+      await setAuth(loginResult.data.accessToken, loginResult.data.user);
+      router.replace("/(main)/home");
     } catch (err: any) {
-      Alert.alert("Lỗi", "Đăng ký thất bại. Vui lòng thử lại!");
+      const msg = err.response?.data?.message || "Đăng ký thất bại. Vui lòng thử lại!";
+      Alert.alert("Lỗi đăng ký", msg);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Đăng Ký Tài Khoản</Text>
-      <Text style={styles.subtitle}>
-        Điền thông tin để bắt đầu trải nghiệm MH AI
-      </Text>
+      <Text style={styles.subtitle}>Điền thông tin để bắt đầu trải nghiệm MH AI</Text>
 
       <TextInput
         style={styles.input}
-        placeholder="Họ và tên"
+        placeholder="Họ và tên *"
         value={fullName}
         onChangeText={setFullName}
       />
-
       <TextInput
         style={styles.input}
-        placeholder="Tên đăng nhập"
-        value={username}
-        onChangeText={setUsername}
+        placeholder="Số điện thoại * (VD: 0901234567)"
+        keyboardType="phone-pad"
+        value={phone}
+        onChangeText={setPhone}
         autoCapitalize="none"
       />
-
       <TextInput
         style={styles.input}
-        placeholder="Mật khẩu"
+        placeholder="Email (không bắt buộc)"
+        keyboardType="email-address"
+        value={email}
+        onChangeText={setEmail}
+        autoCapitalize="none"
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Mật khẩu * (tối thiểu 8 ký tự)"
         secureTextEntry
         value={password}
         onChangeText={setPassword}
         autoCapitalize="none"
       />
-
       <TextInput
         style={styles.input}
-        placeholder="Nhập lại mật khẩu"
+        placeholder="Nhập lại mật khẩu *"
         secureTextEntry
         value={confirmPassword}
         onChangeText={setConfirmPassword}
@@ -121,15 +115,10 @@ export default function RegisterScreen() {
         )}
       </TouchableOpacity>
 
-      <TouchableOpacity
-        style={styles.loginLink}
-        onPress={() => router.push("/auth/login")}
-      >
-        <Text style={styles.loginLinkText}>
-          Đã có tài khoản? Đăng nhập ngay
-        </Text>
+      <TouchableOpacity style={styles.loginLink} onPress={() => router.push("/auth/login")}>
+        <Text style={styles.loginLinkText}>Đã có tài khoản? Đăng nhập ngay</Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 }
 
