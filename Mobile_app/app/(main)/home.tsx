@@ -7,6 +7,11 @@ export default function HomeScreen() {
   const { user, logout } = useAuthStore();
   const router = useRouter();
 
+  const handleLogout = async () => {
+    await logout();
+    router.replace("/auth/login");
+  };
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.greeting}>Xin chào, {user?.fullName || "Người dùng"} 👋</Text>
@@ -22,7 +27,7 @@ export default function HomeScreen() {
         <Text style={styles.cardDesc}>Xem và quản lý lịch khám sắp tới</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={[styles.card, { backgroundColor: "#fff3cd" }]} onPress={logout}>
+      <TouchableOpacity style={[styles.card, { backgroundColor: "#fff3cd" }]} onPress={handleLogout}>
         <Text style={styles.cardTitle}>🚪 Đăng xuất</Text>
       </TouchableOpacity>
     </ScrollView>
