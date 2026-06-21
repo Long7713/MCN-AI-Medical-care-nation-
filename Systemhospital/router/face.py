@@ -1,10 +1,25 @@
 import base64
-import tempfile
-import os
+import numpy as np
+import cv2
 from fastapi import APIRouter
 from pydantic import BaseModel
 
 router = APIRouter(prefix="/face", tags=["Face Biometric"])
+
+_face_app = None
+
+def get_face_app():
+    global _face_app
+    if _face_app is None:
+        import insightface
+        print("[Face] Loading insightface buffalo_sc model...")
+        _face_app = insightface.app.FaceAnalysis(
+            name="buffalo_sc",
+            providers=["CPUExecutionProvider"]
+        )
+        _face_app.prepare(ctx_id=0, det_size=(640, 640))
+        print("[Face] Model ready.")
+    return _face_app
 
 
 class FaceEmbedRequest(BaseModel):
@@ -13,41 +28,24 @@ class FaceEmbedRequest(BaseModel):
 
 @router.post("/embed")
 def embed_face(request: FaceEmbedRequest):
-    tmp_path = None
     try:
-        # Lazy-load deepface to avoid slow startup
-        from deepface import DeepFace
+        img_bytes = base64.b64decode(request.imageBase64)
+        img_array = np.frombuffer(img_bytes, dtype=np.uint8)
+        img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
 
-        # Decode base64 image and write to a temp file
-        image_bytes = base64.b64decode(request.imageBase64)
-        with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as tmp:
-            tmp.write(image_bytes)
-            tmp_path = tmp.name
+        if img is None:
+            return {"vector": [], "status": "error", "error": "Không đọc được ảnh"}
 
-        # Run face embedding with Facenet (128-dim)
-        result = DeepFace.represent(
-            img_path=tmp_path,
-            model_name="Facenet",
-            detector_backend="opencv",
-            enforce_detection=False,
-        )
+        app = get_face_app()
+        faces = app.get(img)
 
-        # DeepFace.represent returns a list; take the first face
-        embedding = result[0]["embedding"] if result else []
+        if not faces:
+            return {"vector": [], "status": "no_face", "error": "Không phát hiện khuôn mặt"}
 
-        return {
-            "vector": embedding,
-            "dims": len(embedding),
-            "status": "ok",
-        }
+        embedding = faces[0].embedding.tolist()
+        print(f"[Face] Embedded face, dims={len(embedding)}")
+        return {"vector": embedding, "dims": len(embedding), "status": "ok"}
 
     except Exception as e:
-        return {
-            "vector": [],
-            "status": "error",
-            "error": str(e),
-        }
-
-    finally:
-        if tmp_path and os.path.exists(tmp_path):
-            os.remove(tmp_path)
+        print(f"[Face] Error: {e}")
+        return {"vector": [], "status": "error", "error": str(e)}
