@@ -44,7 +44,7 @@ export default function RegisterScreen() {
       await register(form);
       const loginResult = await login(form.phone, form.password);
       await setAuth(loginResult.data.accessToken, loginResult.data.user);
-      router.replace("/(main)/home");
+      router.replace("/auth/face-enroll");
     } catch (err: any) {
       const msg =
         err.response?.data?.message || "Đăng ký thất bại, vui lòng thử lại";

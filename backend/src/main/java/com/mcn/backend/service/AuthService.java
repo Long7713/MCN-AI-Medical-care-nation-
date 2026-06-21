@@ -1,5 +1,7 @@
 package com.mcn.backend.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mcn.backend.config.JwtUtil;
 import com.mcn.backend.dto.LoginRequest;
 import com.mcn.backend.dto.RegisterRequest;
@@ -11,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -61,5 +64,17 @@ public class AuthService {
                 "user", Map.of("userId", patient.getId(), "fullName", patient.getFullName())
             )
         );
+    }
+
+    public Map<String, Object> enrollFace(String phone, List<Double> vector) {
+        Patient patient = patientRepo.findByPhone(phone)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy bệnh nhân"));
+        try {
+            patient.setFaceVector(new ObjectMapper().writeValueAsString(vector));
+        } catch (JsonProcessingException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Lỗi xử lý vector");
+        }
+        patientRepo.save(patient);
+        return Map.of("success", true, "message", "Đăng ký sinh trắc học thành công");
     }
 }

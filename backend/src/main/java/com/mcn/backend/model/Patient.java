@@ -34,6 +34,9 @@ public class Patient {
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(columnDefinition = "TEXT")
+    private String faceVector;
+
     @PrePersist
     void onCreate() {
         this.createdAt = LocalDateTime.now();

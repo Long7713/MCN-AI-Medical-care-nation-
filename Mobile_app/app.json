@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "MCN-AI",
+    "slug": "mcn-ai",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "mcn-ai",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.mcn.ai"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#1976D2"
+      },
+      "package": "com.mcn.ai"
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

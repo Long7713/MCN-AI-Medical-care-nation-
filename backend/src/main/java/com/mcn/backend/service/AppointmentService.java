@@ -12,6 +12,7 @@ import com.mcn.backend.repository.TimeSlotRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.LinkedHashMap;
@@ -28,11 +29,12 @@ public class AppointmentService {
     private final PatientRepository patientRepository;
     private final DepartmentRepository departmentRepository;
 
+    @Transactional
     public Map<String, Object> createAppointment(AppointmentRequest req, String patientPhone) {
         Patient patient = patientRepository.findByPhone(patientPhone)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy bệnh nhân"));
 
-        TimeSlot slot = timeSlotRepository.findById(req.getSlotId())
+        TimeSlot slot = timeSlotRepository.findByIdForUpdate(req.getSlotId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy khung giờ"));
 
         if (Boolean.FALSE.equals(slot.getIsAvailable())) {
@@ -66,10 +68,10 @@ public class AppointmentService {
         return appointmentRepository.findByPatientPhoneOrderByCreatedAtDesc(patientPhone).stream()
                 .map(appt -> {
                     Map<String, Object> m = new LinkedHashMap<>();
-                    m.put("appointmentId", appt.getId());
-                    m.put("department", appt.getDepartment().getName());
-                    m.put("date", appt.getTimeSlot().getSlotDate().toString());
-                    m.put("time", appt.getTimeSlot().getStartTime().toString());
+                    m.put("id", appt.getId());
+                    m.put("departmentName", appt.getDepartment().getName());
+                    m.put("slotDate", appt.getTimeSlot().getSlotDate().toString());
+                    m.put("startTime", appt.getTimeSlot().getStartTime().toString());
                     m.put("status", appt.getStatus().name());
                     m.put("note", appt.getNote() != null ? appt.getNote() : "");
                     m.put("createdAt", appt.getCreatedAt().toString());

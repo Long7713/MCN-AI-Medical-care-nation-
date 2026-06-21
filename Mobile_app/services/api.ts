@@ -82,11 +82,27 @@ export const suggestDepartment = async (symptomText: string): Promise<{ departme
 };
 
 export const transcribeAudio = async (audioBase64: string) => {
-  const res = await backendClient.post("/voice/transcribe", { audioBase64 });
+  const res = await aiClient.post("/voice/transcribe", { audioBase64 });
   return res.data as { transcript: string; status: string };
 };
 
 export const predictEmotion = async (text: string) => {
   const res = await aiClient.post("/emotion/predict", { text });
   return res.data;
+};
+
+// ── Face Biometric ────────────────────────────────────────────
+
+export const embedFace = async (imageBase64: string) => {
+  const res = await aiClient.post("/face/embed", { imageBase64 });
+  return res.data as { vector: number[]; dims: number; status: string };
+};
+
+export const enrollFace = async (token: string, faceVector: number[]) => {
+  const res = await backendClient.post(
+    "/auth/face-enroll",
+    { faceVector },
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  return res.data as { success: boolean; message: string };
 };

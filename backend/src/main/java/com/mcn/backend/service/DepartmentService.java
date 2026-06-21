@@ -31,8 +31,8 @@ public class DepartmentService {
         return timeSlotRepository.findByDepartmentIdAndIsAvailableTrue(departmentId).stream()
                 .map(slot -> Map.<String, Object>of(
                         "id", slot.getId(),
-                        "date", slot.getSlotDate().toString(),
-                        "time", slot.getStartTime().toString(),
+                        "slotDate", slot.getSlotDate().toString(),
+                        "startTime", slot.getStartTime().toString(),
                         "isAvailable", slot.getIsAvailable()
                 ))
                 .collect(Collectors.toList());
