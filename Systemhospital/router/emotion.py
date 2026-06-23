@@ -9,9 +9,21 @@ router = APIRouter(
     tags=["AI Emotion Recognition"]
 )
 
-MODEL_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "phobert_v2"))
-tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
-model = AutoModel.from_pretrained(MODEL_PATH)
+tokenizer = None
+model = None
+
+def load_emotion_model():
+    """Tải model PhoBERT vào các biến toàn cục."""
+    global tokenizer, model
+    if model is None:
+        MODEL_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "phobert_v2"))
+        if not os.path.exists(MODEL_PATH):
+            print(f"[Emotion] Warning: Thư mục model không tồn tại tại {MODEL_PATH}")
+            return
+        print("[Emotion] Loading PhoBERT model...")
+        tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
+        model = AutoModel.from_pretrained(MODEL_PATH)
+        print("[Emotion] Model ready.")
 
 # Cấu hình dữ liệu người dùng gửi lên để phân tích cảm xúc
 class EmotionRequest(BaseModel):
@@ -19,16 +31,19 @@ class EmotionRequest(BaseModel):
 
 @router.post("/predict")
 def predict_emotion(request: EmotionRequest):
+    if model is None or tokenizer is None:
+        return {"status": "error", "error": "Model cảm xúc chưa được tải. Vui lòng kiểm tra server log."}
+
     # 1. Chuyển đổi văn bản đầu vào thành dạng AI hiểu được
     inputs = tokenizer(request.text, return_tensors="pt", truncation=True, max_length=256)
-    
+
     # 2. Đưa qua mô hình PhoBERT thật để trích xuất đặc trưng ngữ nghĩa
     with torch.no_grad():
         outputs = model(**inputs)
-    
+
     # Lấy thông tin ngữ nghĩa tổng quan của câu từ CLS token
     sentence_embedding = outputs.last_hidden_state[:, 0, :]
-    
+
     # Trả về kết quả (Bạn có thể cắm thêm tầng Classification Layer phân loại cảm xúc ở đây)
     return {
         "text": request.text,

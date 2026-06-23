@@ -1,14 +1,39 @@
 from dotenv import load_dotenv
 load_dotenv()
-
+from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 import math
 from datetime import datetime
 
+# Import function to load AI models
+from router.face import load_face_model
+from router.emotion import load_emotion_model
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Load AI models on startup
+    print("--- Loading AI models ---")
+    load_face_model()
+    load_emotion_model()
+    print("--- AI models loaded ---")
+    yield
+    # Clean up the models and release the resources
+    print("--- Cleaning up resources ---")
+
 app = FastAPI(
+    lifespan=lifespan,
     title="MCN AI(Medical Care Nation)",
     description="Hệ thống API hỗ trợ AI nhận diện cảm xúc và đám đông bệnh viện",
     version="1.0.0"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 @app.get("/")
@@ -18,26 +43,6 @@ def read_root():
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
-
-@app.get("/density/{dept_id}")
-def get_density(dept_id: int):
-    hour = datetime.now().hour
-    # Giờ cao điểm: 8-10h và 14-16h
-    base = 0.5 + 0.4 * math.sin((hour - 9) * math.pi / 4)
-    offset = (dept_id % 3) * 0.1
-    density = max(0.1, min(0.95, base + offset))
-    if density > 0.7:
-        level = "HIGH"
-    elif density > 0.4:
-        level = "MEDIUM"
-    else:
-        level = "LOW"
-    return {
-        "dept_id": dept_id,
-        "density": round(density, 2),
-        "level": level
-    }
-
 
 # Load AI routers — chỉ hoạt động khi đã cài transformers + torch + model files
 try:

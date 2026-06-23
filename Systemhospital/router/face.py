@@ -6,20 +6,20 @@ from pydantic import BaseModel
 
 router = APIRouter(prefix="/face", tags=["Face Biometric"])
 
-_face_app = None
+_face_app = None # Global variable to hold the model
 
-def get_face_app():
+def load_face_model():
+    """Loads the insightface model into the global _face_app variable."""
     global _face_app
     if _face_app is None:
         import insightface
         print("[Face] Loading insightface buffalo_sc model...")
         _face_app = insightface.app.FaceAnalysis(
             name="buffalo_sc",
-            providers=["CPUExecutionProvider"]
+            providers=["CPUExecutionProvider"] # Use CPU
         )
         _face_app.prepare(ctx_id=0, det_size=(640, 640))
         print("[Face] Model ready.")
-    return _face_app
 
 
 class FaceEmbedRequest(BaseModel):
@@ -36,8 +36,10 @@ def embed_face(request: FaceEmbedRequest):
         if img is None:
             return {"vector": [], "status": "error", "error": "Không đọc được ảnh"}
 
-        app = get_face_app()
-        faces = app.get(img)
+        if _face_app is None:
+            # This should not happen if the model is loaded at startup
+            return {"vector": [], "status": "error", "error": "Model khuôn mặt chưa được tải"}
+        faces = _face_app.get(img)
 
         if not faces:
             return {"vector": [], "status": "no_face", "error": "Không phát hiện khuôn mặt"}
