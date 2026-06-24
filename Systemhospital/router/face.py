@@ -29,12 +29,16 @@ class FaceEmbedRequest(BaseModel):
 @router.post("/embed")
 def embed_face(request: FaceEmbedRequest):
     try:
-        img_bytes = base64.b64decode(request.imageBase64)
+        try:
+            img_bytes = base64.b64decode(request.imageBase64)
+        except (base64.binascii.Error, ValueError):
+            return {"vector": [], "status": "error", "error": "Định dạng base64 không hợp lệ"}
+
         img_array = np.frombuffer(img_bytes, dtype=np.uint8)
         img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
 
         if img is None:
-            return {"vector": [], "status": "error", "error": "Không đọc được ảnh"}
+            return {"vector": [], "status": "error", "error": "Không thể giải mã dữ liệu ảnh từ chuỗi base64"}
 
         if _face_app is None:
             # This should not happen if the model is loaded at startup
